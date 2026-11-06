@@ -49,7 +49,7 @@ CI uses Node 22 and runs typecheck plus the full test script. In the local verif
 
 ## Known blockers to resolve before production claims
 
-- Translation fallback response is rejected by current UI validation.
+- Translation fallback renders original Chinese; user-facing fallback notice could be clearer.
 - `/api/heming` is referenced but absent.
 - `/api/interpret` still has stale missing-route copy and logs chart JSON.
 - Gemini model discovery is invoked at API module initialization.
@@ -59,3 +59,14 @@ CI uses Node 22 and runs typecheck plus the full test script. In the local verif
 - The local worktree's extensive changes have unclear authorship/release intent.
 
 See [07_OPEN_QUESTIONS.md](./07_OPEN_QUESTIONS.md) before taking these on; several require a product/security decision rather than an assumed implementation.
+
+## Documentation mirror automation
+
+On this Windows workstation, a scheduled task named `ZiweiDocsAutoSync` watches `docs/agent-knowledge/**/*.md`. After a 10-second quiet period it mirrors changed files into the root of `D:\Projects\ziwei-doushu-architecture`, commits only managed Markdown paths, and pushes `main` without force. Deletions are limited to paths recorded in `.agent-knowledge-sync.json`; unrelated files in the architecture repository are not staged. The source Git `post-commit` hook delegates to the same one-shot sync script.
+
+- Install/start or repair: run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\manage-agent-knowledge-watcher.ps1 -Install` from the source repository.
+- Stop/remove: use the same command with `-Uninstall`.
+- One-shot manual sync: run `.\sync-to-agent.ps1`.
+- Logs: `%LOCALAPPDATA%\ZiweiDocsAutoSync\sync.log`.
+
+The watcher uses the destination repository's configured Git credential helper. It refuses to push to an unexpected remote, another branch, or a destination branch that has diverged from GitHub.
