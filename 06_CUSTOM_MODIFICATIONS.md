@@ -76,6 +76,10 @@ Besides the functional source additions above, the following untracked files wer
 
 They are not declared as package scripts or runtime dependencies. Treat the Python/text utilities as workbench artifacts unless their owner confirms otherwise. Protect the large dataset file and avoid exposing its contents.
 
+## Local documentation auto-sync
+
+The current Windows workstation also has local automation (not part of the application runtime): `scripts/sync-agent-knowledge.ps1`, `scripts/manage-agent-knowledge-watcher.ps1`, a `sync-to-agent.ps1` one-shot wrapper, and a `.git/hooks/post-commit` shim. A user-level scheduled task watches `docs/agent-knowledge/**/*.md`, debounces changes, mirrors only managed Markdown paths into the root of `D:\Projects\ziwei-doushu-architecture`, and pushes safe sync commits to that repository's `main` branch. Its ownership manifest is `.agent-knowledge-sync.json`; logs are under `%LOCALAPPDATA%\ZiweiDocsAutoSync`. Removing the scheduled task does not remove these scripts or the Git hook.
+
 ## Differences from the README's described open-source snapshot
 
 The README says the open-source release excludes the interpretation database, AI prompts, and all `/api/*` backend routes. In this working tree:
