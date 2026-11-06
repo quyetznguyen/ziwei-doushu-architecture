@@ -65,3 +65,8 @@ The README documents a commercial service and a periodic open-source snapshot. I
 The README mentions website content identifier `ca268829f7a9` and `ANALYSIS_CONTENT_VERSION`; a source search found those identifiers in README text, not an implemented runtime version registry. Translation caching has its own source hash, but that is not a full dataset/content release versioning system.
 
 For current gaps, risks, and recommendations, see [07_OPEN_QUESTIONS.md](./07_OPEN_QUESTIONS.md). These documents are a source-grounded handoff, not a claim that every modified file has been reviewed or that the current dirty worktree is a production deployment.
+
+# A little change to test git commit
+# Test lần 2
+# Test lần 3
+# Test lần 4

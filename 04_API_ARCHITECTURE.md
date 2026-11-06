@@ -8,7 +8,7 @@ All routes below were present in the current working tree when documented. Sever
 |---|---|---|
 | `POST /api/dataset/overview` | `{ "chart": ZiweiChart-like object }` | Validates `chart.birthInfo`, computes the key, retrieves overview. Returns `{ datasetKey, overview, translated: false }`; no Gemini call. |
 | `POST /api/dataset/topic` | `{ "chart": ..., "topic": DatasetDimension }` | Retrieves any of the 13 dimensions. Returns `{ topic, content }`. |
-| `POST /api/dataset/translate` | `{ "chart": ..., "topic": DatasetDimension }` | Retrieves source text, returns cached translation or calls Gemini and caches it. Success returns `{ datasetKey, topic, content, translated: true, source }`. Model exhaustion returns `{ datasetKey, topic, translated: false, fallback: true, content: originalChinese }`. |
+| `POST /api/dataset/translate` | `{ "chart": ..., "topic": DatasetDimension }` | Retrieves source text, returns cached translation or calls Gemini and caches it. Success returns `{ datasetKey, topic, content, translated: true, source }`. Translation failure returns HTTP 200 with `{ datasetKey, topic, translated: false, fallback: true, content: originalChinese, source: "fallback" }`. |
 | `GET /api/admin/dataset` | Optional bearer token in production | Scans source directory and returns available years, imported years, database path, and record count. |
 | `POST /api/admin/dataset` | `{ "year": integer }`; bearer token in production | Imports matching `year-XXXX.jsonl.zst` and returns updated state plus a message. |
 | `POST /api/interpret` | `{ "chart": object, "messages": [{ "role": "user" \| "assistant", "content": string }] }` | Sends chart JSON and chat history to Gemini; success is an SSE response with text deltas and `[DONE]`. |
@@ -24,9 +24,9 @@ The translation route validates the same chart/topic shape, then:
 1. Loads the original topic text from SQLite.
 2. Calls `translateDatasetContent(datasetKey, topic, chineseContent)`.
 3. Logs the key, topic, source (`cache` or `gemini`), and source/translated character counts.
-4. Returns translated text, or original source text with a non-error fallback response when `TranslationUnavailableError` is thrown.
+4. Returns translated text, or original source text with a non-error fallback response when the translation service cannot translate or persist the result.
 
-The API error/fallback contract and the UI behavior are not fully aligned: the translation endpoint's fallback has `translated: false`, while `InsightPanel` accepts only `translated: true`. The current UI reports a translation error for that fallback response, although the original Chinese text remains rendered. See [07_OPEN_QUESTIONS.md](./07_OPEN_QUESTIONS.md).
+The UI accepts translated responses and the explicit original-text fallback. On fallback, it keeps the original dataset content visible and allows another translation attempt.
 
 ## Admin security and filesystem behavior
 

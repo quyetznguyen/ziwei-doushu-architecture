@@ -1,0 +1,14 @@
+{
+    "version":  1,
+    "source":  "docs/agent-knowledge",
+    "files":  [
+                  "01_PROJECT_OVERVIEW.md",
+                  "02_DIRECTORY_STRUCTURE.md",
+                  "03_DATASET_ARCHITECTURE.md",
+                  "04_API_ARCHITECTURE.md",
+                  "05_AI_PIPELINE.md",
+                  "06_CUSTOM_MODIFICATIONS.md",
+                  "07_OPEN_QUESTIONS.md",
+                  "08_AGENT_HANDOFF.md"
+              ]
+}

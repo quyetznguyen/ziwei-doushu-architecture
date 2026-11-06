@@ -16,7 +16,7 @@ The current importer and lookup code use one row per chart key in SQLite. The ex
 
 The 13 required `c`/`t` keys are `overview`, `personality`, `love`, `career`, `wealth`, `health`, `family`, `children`, `move`, `friends`, `home`, `spirit`, and `parents`. The implementation defines them in [`lib/dataset/lookup.ts`](../../lib/dataset/lookup.ts).
 
-The `chart_interpretations` table stores `k` as `TEXT PRIMARY KEY NOT NULL`, metadata columns, `t TEXT NOT NULL`, and one `TEXT NOT NULL` column for every dimension. All dimension content is returned by `lookupDataset()`. The separate `translations` table is created on demand by the translation service.
+The `chart_interpretations` table stores `k` as `TEXT PRIMARY KEY NOT NULL`, metadata columns, `t TEXT NOT NULL`, and one `TEXT NOT NULL` column for every dimension. All dimension content is returned by `lookupDataset()`. The translation service creates `dataset_translations` on demand, with a unique key over dataset ID, section, language, and source hash.
 
 ## Key generation and lookup
 
@@ -72,7 +72,7 @@ The README describes the v4.0 release as 674,976 charts, 13 topics per chart, ye
 
 ## Versioning and mutation
 
-The README names `ca268829f7a9` as the website content version and mentions `ANALYSIS_CONTENT_VERSION`, but neither identifier is implemented in the source files searched. There is no dataset-release/version metadata table in the current SQLite schema. Translation rows are keyed by `(dataset_key, topic, source_hash)`, where the source hash is SHA-256 of the current Chinese source text. This lets changed source text receive a distinct cached translation; it is not a release manifest for imported data.
+The README names `ca268829f7a9` as the website content version and mentions `ANALYSIS_CONTENT_VERSION`, but neither identifier is implemented in the source files searched. There is no dataset-release/version metadata table in the current SQLite schema. Translation rows in `dataset_translations` are keyed by `(dataset_id, section, language, source_hash)`, where `source_hash` is SHA-256 of the original Chinese source text. This lets changed source text receive a distinct cached translation; it is not a release manifest for imported data.
 
 Importer upserts replace all stored dimension values for a matching key. Import provenance, source-file checksum, version, and import timestamp are not stored. Before re-importing altered data, decide whether preserving old dataset snapshots or auditable provenance is required.
 

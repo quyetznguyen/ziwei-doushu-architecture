@@ -45,7 +45,7 @@ The chart domain: types, constants, algorithm, school settings/data/patches, lun
 
 ### `lib/translation/`
 
-- [`service.ts`](../../lib/translation/service.ts): translation cache, source hashing, in-flight deduplication, Gemini fallback, and `TranslationUnavailableError`.
+- [`service.ts`](../../lib/translation/service.ts): translation cache, source hashing, in-flight deduplication, Gemini fallback, and original-source fallback.
 - [`ziwei-dictionary.ts`](../../lib/translation/ziwei-dictionary.ts): deterministic star/palace term normalization before translation.
 
 ### Other domain libraries

@@ -4,9 +4,9 @@ This file separates observed implementation gaps from recommendations. Recommend
 
 ## Confirmed implementation questions and risks
 
-### 1. Translation fallback is not accepted by the UI
+### 1. Translation fallback remains Chinese in the UI
 
-`/api/dataset/translate` returns original Chinese text with `translated: false` and `fallback: true` when all retryable Gemini models are unavailable. `InsightPanel` currently requires `translated === true`; it reports an error for the fallback rather than recognizing the successful source-text fallback. Confirm the desired UX and update the contract/UI together. Preserve the original dataset display.
+`/api/dataset/translate` returns original Chinese text with `translated: false` and `fallback: true` when translation is unavailable. `InsightPanel` keeps that content visible and allows retry, but the user may need clearer UI feedback that the original source is being shown instead of Vietnamese.
 
 ### 2. Dataset language coverage is incomplete in the UI
 

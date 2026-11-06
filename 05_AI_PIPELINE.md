@@ -21,16 +21,16 @@ The topic buttons cover the same 13 dimensions as the database. Only overview cu
 [`lib/translation/service.ts`](../../lib/translation/service.ts) implements:
 
 1. SHA-256 hashing of the original Chinese source text.
-2. A cache lookup keyed by `(dataset_key, topic, source_hash)`.
+2. A cache lookup keyed by `(dataset_id, section, language, source_hash)`.
 3. Deterministic star/palace normalization through [`ziwei-dictionary.ts`](../../lib/translation/ziwei-dictionary.ts) if there is no cache hit.
 4. Gemini translation with a strict Vietnamese system instruction that says to translate only, preserve Markdown/order/examples, and not interpret, summarize, add, remove, or rewrite content.
-5. Save of the translated output in the same SQLite database's `translations` table.
+5. Save of the translated output in the same SQLite database's `dataset_translations` table.
 
-The stored columns are `dataset_key`, `topic`, `source_hash`, `source_text`, `translated_vi`, and `created_at`; the composite primary key is `(dataset_key, topic, source_hash)`. This supports a new translation when the same key/topic has changed source text. An in-process map deduplicates concurrent requests for the same key/topic/source hash; it is not a distributed lock across server instances.
+The table stores `id`, `dataset_id`, `section`, `language`, `source_hash`, `translated_content`, `provider`, `model`, `created_at`, and `updated_at`, with a unique cache key on `(dataset_id, section, language, source_hash)`. `dataset_id` is the generated chart dataset key, `section` is the requested topic, and the current language is `vi`. Old rows in the prior `translations` table are copied once into the new table as legacy-provider entries; the old table is retained as `translations_legacy`. An in-process map deduplicates concurrent requests for the same key/section/language/source hash; it is not a distributed lock across server instances.
 
-`GEMINI_TRANSLATION_MODEL`, when set, is tried first, then the hard-coded model list. Retryable errors include 429/quota/rate-limit and 503/service-unavailable patterns. If all models fail in a retryable way, the service throws `TranslationUnavailableError`. The translation API catches that specific error and returns original Chinese content with `translated: false` and `fallback: true`.
+`GEMINI_TRANSLATION_MODEL`, when set, is tried first, then `models/gemini-3.5-flash-lite`, `models/gemini-3.5-flash`, and `models/gemini-2.5-flash`. Model fallback is attempted for 404, 429, 503, quota/resource exhaustion, rate-limit, and service-unavailable errors. If translation, cache lookup, or persistence fails, the service returns original Chinese content. The API returns that content with HTTP 200, `translated: false`, and `fallback: true`; dataset retrieval failures remain separate API errors.
 
-The API behavior is fail-safe for source visibility, but the UI currently expects `translated: true` and treats the fallback object as invalid. The Chinese dataset text is not cleared while translation is pending, so a failed translation does not erase it. Do not claim that a prompt can guarantee 100% semantic equivalence; the implementation's prompt is a constraint, not a proof of translation fidelity.
+The UI currently expects `translated: true` and treats the fallback object as invalid. The Chinese dataset text is not cleared while translation is pending, so a failed translation does not erase it, but the UI should be updated to render fallback content as a successful source-text response. Do not claim that a prompt can guarantee 100% semantic equivalence; the implementation's prompt is a constraint, not a proof of translation fidelity.
 
 ### Dictionary caveat
 
@@ -65,4 +65,4 @@ Operational concerns in the route:
 
 ## Observability
 
-The translation endpoint logs dataset key, topic, translation source (`cache`, `gemini`, or fallback), and Chinese/Vietnamese character counts. The service logs attempted/successful model names and retry failures. Review whether logs should include provider errors or model/usage metadata in production, and avoid logging content or API keys.
+The service logs `CACHE HIT`, `CACHE MISS`, `TRANSLATION SAVED`, `MODEL FALLBACK`, and `ALL MODELS FAILED`. The translation endpoint logs dataset key, topic, translation source, and Chinese/Vietnamese character counts. Review whether logs should include provider errors or model/usage metadata in production, and avoid logging content or API keys.
