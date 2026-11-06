@@ -62,7 +62,7 @@ See [07_OPEN_QUESTIONS.md](./07_OPEN_QUESTIONS.md) before taking these on; sever
 
 ## Documentation mirror automation
 
-On this Windows workstation, a scheduled task named `ZiweiDocsAutoSync` watches `docs/agent-knowledge/**/*.md`. After a 10-second quiet period it mirrors changed files into the root of `D:\Projects\ziwei-doushu-architecture`, commits only managed Markdown paths, and pushes `main` without force. Deletions are limited to paths recorded in `.agent-knowledge-sync.json`; unrelated files in the architecture repository are not staged. The source Git `post-commit` hook delegates to the same one-shot sync script.
+On this Windows workstation, a scheduled task named `ZiweiDocsAutoSync` watches `docs/agent-knowledge/**/*.md`, checking file hashes every 2 seconds. After a 10-second quiet period it mirrors changed files into the root of `D:\Projects\ziwei-doushu-architecture`, commits only managed Markdown paths, and pushes `main` without force. Failed syncs are retried after 30 seconds. Deletions are limited to paths recorded in `.agent-knowledge-sync.json`; unrelated files in the architecture repository are not staged. The source Git `post-commit` hook delegates to the same one-shot sync script.
 
 - Install/start or repair: run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\manage-agent-knowledge-watcher.ps1 -Install` from the source repository.
 - Stop/remove: use the same command with `-Uninstall`.
